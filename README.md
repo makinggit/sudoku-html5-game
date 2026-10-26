@@ -9,7 +9,7 @@ https://makinggit.github.io/sudoku-html5-game/
 ## Features
 
 - 9x9 Sudoku board with a responsive layout
-- Always generates an easy puzzle with 45 given numbers
+- Easy puzzles only, with 45 given numbers
 - Every puzzle has exactly one solution
 - Manual error checking via the Check button
 - Hint reveals one correct value
@@ -52,13 +52,53 @@ Press **Check** to compare your current entries with the puzzle solution. Incorr
 - **Storage:** None; game state is held in memory
 - **Dependencies:** None
 
+## Encoding
+
+All source files use:
+
+- **Character encoding:** UTF-8, without Byte Order Mark (BOM)
+- **Line endings:** LF (`\n`)
+- **HTML charset declaration:** `<meta charset="utf-8">`
+
+When editing this project, configure your editor to save files as UTF-8 without BOM and use LF line endings to avoid rendering or diff issues.
+
 ## Project structure
 
 ```text
 .
-├── index.html   # Complete Sudoku game
-└── README.md    # Project documentation
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # GitHub Actions test workflow
+├── tests/
+│   └── sudoku.test.mjs     # Node.js built-in test suite
+├── index.html              # Complete Sudoku game
+└── README.md               # Project documentation
 ```
+
+## Testing
+
+Run the test suite locally with Node.js 20 or later:
+
+```bash
+node --test tests/sudoku.test.mjs
+```
+
+The tests cover:
+
+- Shuffle behavior
+- Sudoku placement rules
+- Complete-grid generation
+- Easy puzzle generation
+- Unique-solution validation
+
+## CI
+
+GitHub Actions runs the test suite on every push and pull request targeting `main`.
+
+The workflow tests the project on:
+
+- Node.js 20
+- Node.js 22
 
 ## Run locally
 
