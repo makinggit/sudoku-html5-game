@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HTML5 Sudoku</title>
+<title>Sudoku</title>
 <style>
-:root{--bg:#0f172a;--panel:#1e293b;--text:#e2e8f0;--accent:#38bdf8;--error:#f87171;--given:#94a3b8;--success:#4ade80}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}.app{width:min(94vw,520px);padding:20px;background:var(--panel);border-radius:16px;box-shadow:0 20px 50px #0006}h1{margin:0 0 14px;font-size:22px;text-align:center}.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}button{background:#0f172a;color:var(--text);border:1px solid #475569;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}button:hover{border-color:var(--accent)}#board{display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;background:#0f172a;border:2px solid #64748b;border-radius:8px;overflow:hidden}.cell{display:flex;align-items:center;justify-content:center;font-size:clamp(16px,5vw,26px);font-weight:700;border:.5px solid #475569;cursor:pointer;user-select:none}.cell.b-right{border-right:2px solid #94a3b8}.cell.b-bottom{border-bottom:2px solid #94a3b8}.cell.given{color:var(--given)}.cell.selected{background:#0ea5e94d}.cell.error{color:var(--error)}.status{display:flex;justify-content:space-between;margin-top:12px;font-size:14px}.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.pad button{padding:12px 0;font-size:18px}.message{margin-top:12px;text-align:center;font-weight:700;min-height:20px}.message.success{color:var(--success)}.message.info{color:var(--accent)}.message.error{color:var(--error)}
+:root{--bg:#0f172a;--panel:#1e293b;--board:#0f172a;--cell-border:#475569;--strong-border:#94a3b8;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--error:#f87171;--success:#4ade80;--control:#0f172a;--control-border:#475569;--selected:#0ea5e94d}
+body.light-mode{--bg:#f1f5f9;--panel:#ffffff;--board:#ffffff;--cell-border:#cbd5e1;--strong-border:#64748b;--text:#0f172a;--muted:#475569;--accent:#0284c7;--error:#dc2626;--success:#16a34a;--control:#e2e8f0;--control-border:#94a3b8;--selected:#7dd3fc80}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}.app{width:min(94vw,520px);padding:20px;background:var(--panel);border-radius:16px;box-shadow:0 20px 50px #0006}.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}button{background:var(--control);color:var(--text);border:1px solid var(--control-border);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}button:hover{border-color:var(--accent)}#board{display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);aspect-ratio:1;background:var(--board);border:2px solid var(--strong-border);border-radius:8px;overflow:hidden}.cell{display:flex;align-items:center;justify-content:center;font-size:clamp(16px,5vw,26px);font-weight:700;border:.5px solid var(--cell-border);cursor:pointer;user-select:none}.cell.b-right{border-right:2px solid var(--strong-border)}.cell.b-bottom{border-bottom:2px solid var(--strong-border)}.cell.given{color:var(--muted)}.cell.selected{background:var(--selected)}.cell.error{color:var(--error)}.status{display:flex;justify-content:space-between;margin-top:12px;font-size:14px}.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.pad button{padding:12px 0;font-size:18px}.message{margin-top:12px;text-align:center;font-weight:700;min-height:20px}.message.success{color:var(--success)}.message.info{color:var(--accent)}.message.error{color:var(--error)}
 </style>
 </head>
 <body>
 <div class="app">
-<h1>HTML5 Sudoku</h1>
 <div class="controls">
-<button id="new">New Game</button><button id="check">Check</button><button id="hint">Hint</button>
+<button id="new">New Game</button><button id="check">Check</button><button id="hint">Hint</button><button id="color-mode">Light mode</button>
 </div>
 <div id="board" role="grid" aria-label="Sudoku board"></div>
 <div class="pad" id="pad"></div>
@@ -21,7 +21,7 @@
 <div class="message" id="message" role="status"></div>
 </div>
 <script>
-const BOARD_SIZE=9,CELL_COUNT=81,EASY_CLUES=45,board=document.getElementById('board'),pad=document.getElementById('pad'),messageEl=document.getElementById('message');
+const BOARD_SIZE=9,CELL_COUNT=81,EASY_CLUES=45,board=document.getElementById('board'),pad=document.getElementById('pad'),messageEl=document.getElementById('message'),colorModeButton=document.getElementById('color-mode');
 let puzzle=[],solution=[],current=[],selected=null,mistakes=0,startTime=null,timerId=null,solved=false;
 const checkedErrors=new Set();
 function idx(row,col){return row*BOARD_SIZE+col}
@@ -42,6 +42,7 @@ const erase=document.createElement('button');erase.textContent='⌫';erase.setAt
 document.getElementById('new').onclick=newGame;
 document.getElementById('check').onclick=()=>{checkedErrors.clear();let incorrect=0;current.forEach((entry,position)=>{if(entry&&entry!==solution[position]){checkedErrors.add(position);incorrect++}});document.getElementById('mistakes').textContent='Mistakes: '+incorrect;setMessage(incorrect?incorrect+' incorrect cell(s).':'No incorrect entries so far.',incorrect?'error':'info');render()};
 document.getElementById('hint').onclick=()=>{if(solved)return;const emptyPositions=current.map((entry,position)=>entry?null:position).filter(position=>position!==null);if(!emptyPositions.length)return;const position=emptyPositions[Math.floor(Math.random()*emptyPositions.length)];current[position]=solution[position];checkedErrors.delete(position);selected=position;if(current.every((entry,index)=>entry===solution[index]))finishGame();render()};
+colorModeButton.onclick=()=>{const isLight=document.body.classList.toggle('light-mode');colorModeButton.textContent=isLight?'Dark mode':'Light mode'};
 document.addEventListener('keydown',event=>{if(event.key>='1'&&event.key<='9')input(+event.key);if(event.key==='Backspace'||event.key==='Delete'){if(selected!==null&&!puzzle[selected]){current[selected]=0;checkedErrors.delete(selected);render()}}});
 newGame();
 </script>
