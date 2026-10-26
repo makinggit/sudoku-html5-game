@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML5 Sudoku</title>
+<style>
+:root{--bg:#0f172a;--panel:#1e293b;--cell:#334155;--text:#e2e8f0;--accent:#38bdf8;--error:#f87171;--given:#94a3b8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}.app{width:min(94vw,520px);padding:20px;background:var(--panel);border-radius:16px;box-shadow:0 20px 50px #0006}h1{margin:0 0 14px;font-size:22px;text-align:center}.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}button,select{background:#0f172a;color:var(--text);border:1px solid #475569;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}button:hover{border-color:var(--accent)}#board{display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;background:#0f172a;border:2px solid #64748b;border-radius:8px;overflow:hidden}.cell{position:relative;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,5vw,26px);font-weight:700;border:.5px solid #475569;cursor:pointer;user-select:none}.cell.b-right{border-right:2px solid #94a3b8}.cell.b-bottom{border-bottom:2px solid #94a3b8}.cell.given{color:var(--given)}.cell.selected{background:#0ea5e94d}.cell.error{color:var(--error)}.cell .notes{position:absolute;inset:2px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);font-size:clamp(7px,2vw,10px);font-weight:500;color:#7dd3fc;line-height:1}.status{display:flex;justify-content:space-between;margin-top:12px;font-size:14px}.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.pad button{padding:12px 0;font-size:18px}.win{margin-top:12px;text-align:center;color:#4ade80;font-weight:700;min-height:20px}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>HTML5 Sudoku</h1>
+<div class="controls">
+<select id="difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+<button id="new">New Game</button><button id="check">Check</button><button id="hint">Hint</button><button id="notes">Notes: Off</button>
+</div>
+<div id="board"></div>
+<div class="pad" id="pad"></div>
+<div class="status"><span id="timer">00:00</span><span id="mistakes">Mistakes: 0</span></div>
+<div class="win" id="win"></div>
+</div>
+<script>
+const N=9,board=document.getElementById('board'),pad=document.getElementById('pad');
+let puzzle=[],solution=[],current=[],notes=[],selected=null,noteMode=false,mistakes=0,startTime=null,timerId=null,solved=false;
+function idx(r,c){return r*9+c}
+function validPlacement(g,r,c,v){for(let i=0;i<9;i++){if(i!==c&&g[idx(r,i)]===v)return false;if(i!==r&&g[idx(i,c)]===v)return false}const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;for(let i=br;i<br+3;i++)for(let j=bc;j<bc+3;j++)if((i!==r||j!==c)&&g[idx(i,j)]===v)return false;return true}
+function solve(g){for(let p=0;p<81;p++){if(!g[p]){for(let v=1;v<=9;v++)if(validPlacement(g,Math.floor(p/9),p%9,v)){g[p]=v;if(solve(g))return true;g[p]=0}return false}}return true}
+function fullGrid(){const g=Array(81).fill(0);function fill(p){if(p===81)return true;const r=Math.floor(p/9),c=p%9,nums=[1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-.5);for(const v of nums)if(validPlacement(g,r,c,v)){g[p]=v;if(fill(p+1))return true;g[p]=0}return false}fill(0);return g}
+function makePuzzle(clues){const g=fullGrid(),s=[...g],cells=[...Array(81).keys()].sort(()=>Math.random()-.5);let removed=0;for(const p of cells){if(removed>=81-clues)break;const backup=g[p];g[p]=0;const test=[...g];if(!solveUnique(test))g[p]=backup;else removed++}return{puzzle:g,solution:s}}
+function solveUnique(g){let count=0;function rec(){for(let p=0;p<81;p++){if(!g[p]){for(let v=1;v<=9;v++)if(validPlacement(g,Math.floor(p/9),p%9,v)){g[p]=v;rec();g[p]=0;if(count>1)return}return}}count++}rec();return count===1}
+function newGame(){const levels={easy:45,medium:36,hard:28};const{puzzle,solution:sol}=makePuzzle(levels[document.getElementById('difficulty').value]);puzzle=puzzle;solution=sol;current=[...puzzle];notes=Array.from({length:81},()=>new Set());selected=null;noteMode=false;mistakes=0;solved=false;document.getElementById('mistakes').textContent='Mistakes: 0';document.getElementById('win').textContent='';startTimer();render()}
+function startTimer(){clearInterval(timerId);startTime=Date.now();timerId=setInterval(()=>{const s=Math.floor((Date.now()-startTime)/1000);document.getElementById('timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000)}
+function render(){board.innerHTML='';for(let r=0;r<9;r++)for(let c=0;c<9;c++){const p=idx(r,c),d=document.createElement('div');d.className='cell'+(c%3===2&&c!==8?' b-right':'')+(r%3===2&&r!==8?' b-bottom':'')+(puzzle[p]?' given':'')+(p===selected?' selected':'');if(current[p]&&current[p]!==solution[p])d.classList.add('error');if(current[p])d.textContent=current[p];else if(notes[p].size){const n=document.createElement('div');n.className='notes';for(let v=1;v<=9;v++){const s=document.createElement('span');s.textContent=notes[p].has(v)?v:'';n.appendChild(s)}d.appendChild(n)}d.onclick=()=>{selected=p;render()};board.appendChild(d)}}
+function input(v){if(selected===null||solved||puzzle[selected])return;if(noteMode){if(current[selected])return;notes[selected].has(v)?notes[selected].delete(v):notes[selected].add(v)}else{current[selected]=v;notes[selected].clear();if(v!==solution[selected]){mistakes++;document.getElementById('mistakes').textContent='Mistakes: '+mistakes}if(current.every((x,i)=>x===solution[i])){solved=true;clearInterval(timerId);document.getElementById('win').textContent='Solved! Time: '+document.getElementById('timer').textContent}}render()}
+for(let v=1;v<=9;v++){const b=document.createElement('button');b.textContent=v;b.onclick=()=>input(v);pad.appendChild(b)}
+const erase=document.createElement('button');erase.textContent='⌫';erase.onclick=()=>{if(selected!==null&&!puzzle[selected]){current[selected]=0;notes[selected].clear();render()}};pad.appendChild(erase);
+document.getElementById('new').onclick=newGame;
+document.getElementById('notes').onclick=e=>{noteMode=!noteMode;e.target.textContent='Notes: '+(noteMode?'On':'Off')};
+document.getElementById('check').onclick=()=>{let bad=0;current.forEach((v,p)=>{if(v&&v!==solution[p])bad++});alert(bad?bad+' incorrect cell(s).':'No incorrect entries so far.')};
+document.getElementById('hint').onclick=()=>{if(solved)return;const empties=current.map((v,p)=>v?null:p).filter(p=>p!==null);if(!empties.length)return;const p=empties[Math.floor(Math.random()*empties.length)];current[p]=solution[p];notes[p].clear();selected=p;if(current.every((x,i)=>x===solution[i])){solved=true;clearInterval(timerId);document.getElementById('win').textContent='Solved!'}render()};
+document.addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='9')input(+e.key);if(e.key==='Backspace'||e.key==='Delete'){if(selected!==null&&!puzzle[selected]){current[selected]=0;notes[selected].clear();render()}}if(e.key==='n'){noteMode=!noteMode;document.getElementById('notes').textContent='Notes: '+(noteMode?'On':'Off')}});
+newGame();
+</script>
+</body>
+</html>
