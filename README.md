@@ -1,6 +1,6 @@
 # HTML5 Sudoku
 
-A lightweight, single-file Sudoku game built with HTML5, CSS, and vanilla JavaScript.
+A lightweight, single-file Sudoku game built with HTML5, CSS, and vanilla JavaScript. The interface is in Traditional Chinese.
 
 ## Live demo
 
@@ -12,8 +12,10 @@ https://makinggit.github.io/sudoku-html5-game/
 - Easy puzzles only, with 45 given numbers
 - Every puzzle has exactly one solution
 - Manual error checking via the Check button
-- Hint reveals one correct value
-- Game timer and mistake counter
+- Hint counter instead of a mistake counter
+- Game timer
+- Light and dark color modes, with the preference saved locally
+- Game statistics and recent-game history
 - Keyboard and mouse support
 - No dependencies, build tools, or backend required
 
@@ -24,24 +26,45 @@ https://makinggit.github.io/sudoku-html5-game/
 3. Enter a number from 1 to 9 using the on-screen keypad or keyboard.
 4. Fill every row, column, and 3x3 box with the numbers 1 through 9.
 5. Use **Check** to identify incorrect entries; incorrect cells turn red.
-6. Use **Hint** if you need help.
+6. Use **Hint** if you need help; each use increments the hint counter.
 
 ## Controls
 
 | Action | Control |
 |---|---|
-| Select a cell | Click it |
+| Select a cell | Click it, or focus it and press `Enter` or `Space` |
 | Enter a number | Click 1-9 or press `1`-`9` |
 | Clear a cell | Click `⌫`, press `Backspace`, or press `Delete` |
 | Check answers | Click **Check** |
 | Get a hint | Click **Hint** |
 | Start a new puzzle | Click **New Game** |
+| Switch color mode | Click **Color** |
+| View statistics | Click **Stats** |
 
 ## Checking answers
 
-The game does **not** automatically validate entries while you play.
+The game does **not** automatically validate entries or highlight errors while you play.
 
 Press **Check** to compare your current entries with the puzzle solution. Incorrect cells are highlighted in red, and the message area shows how many incorrect cells were found. Editing or erasing a highlighted cell removes its red highlight; press **Check** again to recheck the board.
+
+## Hints
+
+Each use of **Hint** fills one empty cell with its correct value and increments the hint counter shown in the status bar. There is no mistake counter in this game.
+
+## Statistics
+
+Click **Stats** to view:
+
+- Games started
+- Games solved
+- Completion rate
+- Best time
+- Average time
+- Total hints used
+- Total play time
+- Recent game history
+
+Statistics and history are stored in the browser using `localStorage`. Use **Clear stats** in the modal to remove them.
 
 ## Technical details
 
@@ -49,7 +72,7 @@ Press **Check** to compare your current entries with the puzzle solution. Incorr
 - **Architecture:** Single-page, single-file application
 - **Puzzle generation:** Random complete-grid generation with backtracking
 - **Solution guarantee:** Removal is validated with a solution-counting solver
-- **Storage:** None; game state is held in memory
+- **Storage:** `localStorage` for statistics, history, and color-mode preference
 - **Dependencies:** None
 
 ## Encoding
