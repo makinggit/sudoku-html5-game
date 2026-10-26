@@ -66,7 +66,7 @@ test('validPlacement rejects duplicate values in a row, column, and box', () => 
   assert.equal(game.validPlacement(grid, 0, 8, 5), false);
   assert.equal(game.validPlacement(grid, 8, 0, 5), false);
   assert.equal(game.validPlacement(grid, 1, 1, 5), false);
-  assert.equal(game.validPlacement(grid, 0, 1, 5), true);
+  assert.equal(game.validPlacement(grid, 0, 1, 6), true);
 });
 
 test('fullGrid creates a valid completed Sudoku grid', () => {
