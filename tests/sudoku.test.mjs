@@ -33,7 +33,7 @@ function loadGameModule() {
     };
     const setInterval = () => 0;
     const clearInterval = () => {};
-    ${script.replace(/newGame\(\);\s*$/, '')}
+    ${script.replace(/newGame\(false\);\s*$/, '')}
     __exports.validPlacement = validPlacement;
     __exports.shuffle = shuffle;
     __exports.fullGrid = fullGrid;
@@ -95,4 +95,37 @@ test('easy puzzle has 45 givens and one solution', () => {
   assert.equal(givens, 45);
   assert.equal(game.countSolutions([...puzzle]), 1);
   isValidSolution(solution);
+});
+
+test('gold bar appears after the quote card', () => {
+  const quoteIndex = html.indexOf('id="quote"');
+  const goldIndex = html.indexOf('id="gold-bar"');
+  assert.ok(quoteIndex !== -1, 'quote card should exist');
+  assert.ok(goldIndex !== -1, 'gold bar should exist');
+  assert.ok(goldIndex > quoteIndex, 'gold bar should appear after the quote card');
+});
+
+test('gold price is formatted to 2 decimal places', () => {
+  assert.ok(script.includes('Number(latest.price).toFixed(2)'));
+});
+
+test('mistake counter is removed and hint counter is present', () => {
+  assert.ok(!html.includes('id="mistakes"'));
+  assert.ok(html.includes('id="hints"'));
+  assert.ok(html.includes('提示：0'));
+});
+
+test('errors are only highlighted after manual check', () => {
+  assert.ok(script.includes('checked=true'));
+  assert.ok(script.includes('checked=false'));
+  assert.ok(/isError=checked&&/.test(script));
+});
+
+test('text selection is disabled globally', () => {
+  assert.ok(/\*\{[^}]*user-select:none/.test(html));
+  assert.ok(html.includes('-webkit-touch-callout:none'));
+});
+
+test('top controls use a 4px gap', () => {
+  assert.ok(/\.controls\{[^}]*gap:4px/.test(html));
 });
