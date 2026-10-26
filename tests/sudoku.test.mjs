@@ -12,8 +12,23 @@ function loadGameModule() {
   const exports = {};
   const sandbox = `
     const document = {
-      getElementById: () => ({ textContent: '', className: '', appendChild: () => {}, onclick: null, innerHTML: '', setAttribute: () => {} }),
-      createElement: () => ({ className: '', textContent: '', appendChild: () => {}, onclick: null, setAttribute: () => {} }),
+      getElementById: () => ({
+        textContent: '',
+        className: '',
+        innerHTML: '',
+        appendChild: () => {},
+        onclick: null,
+        setAttribute: () => {},
+        addEventListener: () => {}
+      }),
+      createElement: () => ({
+        className: '',
+        textContent: '',
+        appendChild: () => {},
+        onclick: null,
+        setAttribute: () => {},
+        addEventListener: () => {}
+      }),
       addEventListener: () => {}
     };
     const setInterval = () => 0;
