@@ -33,6 +33,12 @@ function loadGameModule() {
     };
     const setInterval = () => 0;
     const clearInterval = () => {};
+    const localStorage = {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {}
+    };
+    const fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     ${script.replace(/newGame\(false\);\s*$/, '')}
     __exports.validPlacement = validPlacement;
     __exports.shuffle = shuffle;
@@ -106,7 +112,7 @@ test('gold bar appears after the quote card', () => {
 });
 
 test('gold price is formatted to 2 decimal places', () => {
-  assert.ok(script.includes('Number(latest.price).toFixed(2)'));
+  assert.ok(script.includes('data.price.toFixed(2)'));
 });
 
 test('mistake counter is removed and hint counter is present', () => {
@@ -128,4 +134,11 @@ test('text selection is disabled globally', () => {
 
 test('top controls use a 4px gap', () => {
   assert.ok(/\.controls\{[^}]*gap:4px/.test(html));
+});
+
+test('gold price cache is used and refreshed daily at 07:00', () => {
+  assert.ok(script.includes("GOLD_CACHE_KEY='sudoku-html5-game-gold-cache'"));
+  assert.ok(script.includes('GOLD_REFRESH_MS=21600000'));
+  assert.ok(script.includes('GOLD_DAILY_HOUR=7'));
+  assert.ok(script.includes('shouldRefreshDaily'));
 });
