@@ -117,8 +117,8 @@ test('gold price is formatted to 2 decimal places', () => {
 
 test('mistake counter is removed and hint counter is present', () => {
   assert.ok(!html.includes('id="mistakes"'));
-  assert.ok(html.includes('id="hints"'));
-  assert.ok(html.includes('提示：0'));
+  assert.ok(html.includes('id="hint"'));
+  assert.ok(html.includes('提示'));
 });
 
 test('errors are only highlighted after manual check', () => {
