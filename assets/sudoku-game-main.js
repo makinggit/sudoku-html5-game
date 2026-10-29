@@ -2,33 +2,31 @@
 	'use strict';
 
 const $ = (id) => document.getElementById(id);
-const BOARD_SIZE = 9,
-CELL_COUNT = 81,
-EASY_CLUES = 45,
-STATS_KEY = "sudoku-html5-game-stats",
-COLOR_KEY = "sudoku-html5-game-color-mode",
-MAX_HISTORY = 10,
-GOLD_API = "https://www.goldapi.io/api/price/XAU/USD",
-GOLD_API_KEY = "goldapi-cd2463b5a72f05b7f0a514139fb37d27-io",
-GOLD_CACHE_KEY = "sudoku-html5-game-gold-cache",
-GOLD_REFRESH_MS = 21600000,
-GOLD_DAILY_HOUR = 7,
-board = $("board"),
-pad = $("pad"),
-messageEl = $("message"),
-colorModeButton = $("color-mode"),
-statsModal = $("stats-modal"),
-statsGrid = $("stats-grid"),
-historyList = $("history"),
-goldModal = $("gold-modal"),
-goldDetails = $("gold-details"),
-celebration = $("celebration"),
-celebrationMessage = $("celebration-message"),
-quoteCard = $("quote"),
-quoteText = $("quote-text"),
-themeColorMeta = typeof document.querySelector === "function" ? document.querySelector('meta[name="theme-color"]') : null,
-goldPriceEl = $("gold-price"),
-goldBar = $("gold-bar");
+const BOARD_SIZE = 9;
+const CELL_COUNT = 81;
+const EASY_CLUES = 45;
+const STATS_KEY = "sudoku-html5-game-stats";
+const COLOR_KEY = "sudoku-html5-game-color-mode";
+const MAX_HISTORY = 10;
+const GOLD_API = "https://www.goldapi.io/api/price/XAU/USD";
+const GOLD_API_KEY = "goldapi-cd2463b5a72f05b7f0a514139fb37d27-io";
+const GOLD_CACHE_KEY = "sudoku-html5-game-gold-cache";
+const GOLD_REFRESH_MS = 21600000;
+const GOLD_DAILY_HOUR = 7;
+const board = $("board");
+const pad = $("pad");
+const messageEl = $("message");
+const cells = Array.from({ length: CELL_COUNT }, (_, index) => $(`cell-${index}`));
+const padButtons = Array.from(pad.querySelectorAll("button"));
+const historyItems = Array.from(document.querySelectorAll(".history-item"));
+const historyEmpty = $("history-empty");
+const confettiPieces = Array.from(document.querySelectorAll(".confetti"));
+const goldPriceValue = $("gold-price-value");
+const goldPriceTime = $("gold-price-time");
+const goldDetails = $("gold-details");
+const goldEmpty = $("gold-empty");
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const goldBar = $("gold-bar");
 
 const QUOTES = [
 ["天行健，君子以自強不息；地勢坤，君子以厚德載物。", "《周易》"],
@@ -37,7 +35,7 @@ const QUOTES = [
 ["三人行，必有我師焉。", "《論語》"],
 ["知之為知之，不知為不知，是知也。", "《論語》"],
 ["士不可以不弘毅，任重而道遠。", "《論語》"],
-["見賢思齊焉，見不賢而內自省。", "《論語》"],
+["見賢思齊焉，見不賢而內自省也。", "《論語》"],
 ["君子和而不同，小人同而不和。", "《論語》"],
 ["工欲善其事，必先利其器。", "《論語》"],
 ["人無遠慮，必有近憂。", "《論語》"],
@@ -126,16 +124,16 @@ const QUOTES = [
 ["君子篤恭而天下平。", "《中庸》"],
 ];
 
-let puzzle = [],
-	solution = [],
-	current = [],
-	selected = null,
-	hintsUsed = 0,
-	startTime = null,
-	timerId = null,
-	solved = false,
-	checked = false,
-	lastGoldData = null;
+let puzzle = [];
+let solution = [];
+let current = [];
+let selected = null;
+let hintsUsed = 0;
+let startTime = null;
+let timerId = null;
+let solved = false;
+let checked = false;
+let lastGoldData = null;
 
 function idx(row, col) {
 	return row * BOARD_SIZE + col;
@@ -149,32 +147,35 @@ function shuffle(array) {
 }
 function showQuote() {
 	const [quote, source] = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-	quoteText.textContent = quote + "" + source;
+	$("quote-text").textContent = `${quote} ${source}`;
 }
 function validPlacement(grid, row, col, value) {
 	for (let i = 0; i < BOARD_SIZE; i++) {
 		if (i !== col && grid[idx(row, i)] === value) return false;
 		if (i !== row && grid[idx(i, col)] === value) return false;
 	}
-	const boxRow = Math.floor(row / 3) * 3,
-		boxCol = Math.floor(col / 3) * 3;
-	for (let r = boxRow; r < boxRow + 3; r++)
-		for (let c = boxCol; c < boxCol + 3; c++)
+	const boxRow = Math.floor(row / 3) * 3;
+	const boxCol = Math.floor(col / 3) * 3;
+	for (let r = boxRow; r < boxRow + 3; r++) {
+		for (let c = boxCol; c < boxCol + 3; c++) {
 			if ((r !== row || c !== col) && grid[idx(r, c)] === value) return false;
+		}
+	}
 	return true;
 }
 function fullGrid() {
 	const grid = Array(CELL_COUNT).fill(0);
 	function fill(position) {
 		if (position === CELL_COUNT) return true;
-		const row = Math.floor(position / BOARD_SIZE),
-			col = position % BOARD_SIZE;
-		for (const value of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+		const row = Math.floor(position / BOARD_SIZE);
+		const col = position % BOARD_SIZE;
+		for (const value of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])) {
 			if (validPlacement(grid, row, col, value)) {
 				grid[position] = value;
 				if (fill(position + 1)) return true;
 				grid[position] = 0;
 			}
+		}
 		return false;
 	}
 	fill(0);
@@ -185,15 +186,16 @@ function countSolutions(grid, limit = 2) {
 	function search() {
 		for (let position = 0; position < CELL_COUNT; position++) {
 			if (!grid[position]) {
-				const row = Math.floor(position / BOARD_SIZE),
-					col = position % BOARD_SIZE;
-				for (let value = 1; value <= BOARD_SIZE; value++)
+				const row = Math.floor(position / BOARD_SIZE);
+				const col = position % BOARD_SIZE;
+				for (let value = 1; value <= BOARD_SIZE; value++) {
 					if (validPlacement(grid, row, col, value)) {
 						grid[position] = value;
 						search();
 						grid[position] = 0;
 						if (count >= limit) return;
 					}
+				}
 				return;
 			}
 		}
@@ -203,11 +205,11 @@ function countSolutions(grid, limit = 2) {
 	return count;
 }
 function makePuzzle(clueCount) {
-	const grid = fullGrid(),
-		solutionGrid = [...grid],
-		cells = shuffle([...Array(CELL_COUNT).keys()]);
+	const grid = fullGrid();
+	const solutionGrid = [...grid];
+	const positions = shuffle([...Array(CELL_COUNT).keys()]);
 	let removed = 0;
-	for (const position of cells) {
+	for (const position of positions) {
 		if (removed >= CELL_COUNT - clueCount) break;
 		const backup = grid[position];
 		grid[position] = 0;
@@ -225,17 +227,10 @@ function loadStats() {
 			bestTimeSeconds: parsed?.bestTimeSeconds || null,
 			totalTimeSeconds: parsed?.totalTimeSeconds || 0,
 			totalHints: parsed?.totalHints || 0,
-			history: Array.isArray(parsed?.history) ? parsed.history : [],
+			history: Array.isArray(parsed?.history) ? parsed.history : []
 		};
 	} catch {
-		return {
-			gamesStarted: 0,
-			gamesSolved: 0,
-			bestTimeSeconds: null,
-			totalTimeSeconds: 0,
-			totalHints: 0,
-			history: [],
-		};
+		return { gamesStarted: 0, gamesSolved: 0, bestTimeSeconds: null, totalTimeSeconds: 0, totalHints: 0, history: [] };
 	}
 }
 function saveStats(stats) {
@@ -243,33 +238,120 @@ function saveStats(stats) {
 		localStorage.setItem(STATS_KEY, JSON.stringify(stats));
 	} catch {}
 }
-function getStats() {
-	return loadStats();
-}
 function recordGameStarted() {
-	const stats = getStats();
+	const stats = loadStats();
 	stats.gamesStarted++;
 	saveStats(stats);
 }
 function recordGameSolved() {
-	const seconds = Math.floor((Date.now() - startTime) / 1000),
-		stats = getStats();
+	const seconds = Math.floor((Date.now() - startTime) / 1000);
+	const stats = loadStats();
 	stats.gamesSolved++;
 	stats.totalTimeSeconds += seconds;
 	stats.totalHints += hintsUsed;
 	if (stats.bestTimeSeconds === null || seconds < stats.bestTimeSeconds) stats.bestTimeSeconds = seconds;
-	stats.history.unshift({
-		completedAt: new Date().toISOString(),
-		timeSeconds: seconds,
-		hints: hintsUsed,
-	});
+	stats.history.unshift({ completedAt: new Date().toISOString(), timeSeconds: seconds, hints: hintsUsed });
 	stats.history = stats.history.slice(0, MAX_HISTORY);
 	saveStats(stats);
 }
+function formatTime(seconds) {
+	return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+}
+function elapsedTime() {
+	return formatTime(Math.floor((Date.now() - startTime) / 1000));
+}
+function formatGoldTime(timestamp) {
+	const date = new Date(timestamp * 1000);
+	const pad = (value) => String(value).padStart(2, "0");
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+function setMessage(text, type = "") {
+	messageEl.textContent = text;
+	messageEl.className = `message${type ? ` ${type}` : ""}`;
+}
+function updateThemeColor() {
+	if (themeColorMeta) {
+		themeColorMeta.setAttribute("content", document.body.classList.contains("light-mode") ? "#f1f5f9" : "#0f172a");
+	}
+}
+function renderCell(position) {
+	const row = Math.floor(position / BOARD_SIZE);
+	const col = position % BOARD_SIZE;
+	const cell = cells[position];
+	const value = current[position];
+	const boxAlt = (Math.floor(row / 3) + Math.floor(col / 3)) % 2 === 1;
+	const isError = checked && value && value !== solution[position];
+	cell.textContent = value ? String(value) : "";
+	cell.className = [
+		"cell",
+		boxAlt ? "box-alt" : "",
+		col % 3 === 2 && col !== 8 ? "b-right" : "",
+		row % 3 === 2 && row !== 8 ? "b-bottom" : "",
+		puzzle[position] ? "given" : "",
+		position === selected ? "selected" : "",
+		isError ? "error" : ""
+	].filter(Boolean).join(" ");
+	cell.setAttribute("aria-label", `第 ${row + 1} 列，第 ${col + 1} 欄${value ? `，${value}` : ""}`);
+}
+function render() {
+	for (let position = 0; position < CELL_COUNT; position++) renderCell(position);
+}
+function showCelebration() {
+	const seconds = Math.floor((Date.now() - startTime) / 1000);
+	$("celebration-message").textContent = `你在 ${formatTime(seconds)} 內完成，使用提示 ${hintsUsed} 次。`;
+	$("celebration").classList.add("open");
+	const colors = ["#38bdf8", "#f472b6", "#facc15", "#4ade80", "#a78bfa", "#fb923c"];
+	confettiPieces.forEach((piece, index) => {
+		piece.style.left = `${Math.random() * 100}%`;
+		piece.style.background = colors[index % colors.length];
+		piece.style.animationDelay = `${Math.random() * 0.8}s`;
+		piece.style.animationDuration = `${2.2 + Math.random() * 1.4}s`;
+		piece.hidden = false;
+	});
+	setTimeout(() => {
+		confettiPieces.forEach((piece) => {
+			piece.hidden = true;
+		});
+	}, 4200);
+}
+function finishGame() {
+	solved = true;
+	clearInterval(timerId);
+	recordGameSolved();
+	setMessage(`完成！時間：${elapsedTime()}`, "success");
+	$("timer").style.visibility = "hidden";
+	showCelebration();
+}
+function checkIncorrect() {
+	checked = true;
+	const incorrect = current.reduce(
+		(total, entry, position) => total + (entry && entry !== solution[position] ? 1 : 0),
+		0
+	);
+	setMessage(incorrect ? `有 ${incorrect} 個錯誤格子。` : "目前沒有錯誤。", incorrect ? "error" : "info");
+	render();
+}
+function input(value) {
+	if (selected === null || solved || puzzle[selected]) return;
+	current[selected] = value;
+	checked = false;
+	setMessage("", "");
+	if (current.every((entry, index) => entry === solution[index])) finishGame();
+	else if (current.every((entry) => entry !== 0)) checkIncorrect();
+	render();
+}
+function eraseSelected() {
+	if (selected !== null && !puzzle[selected]) {
+		current[selected] = 0;
+		checked = false;
+		setMessage("", "");
+		render();
+	}
+}
 function newGame(countStart = true) {
-	const { puzzle: newPuzzle, solution: newSolution } = makePuzzle(EASY_CLUES);
-	puzzle = newPuzzle;
-	solution = newSolution;
+	const result = makePuzzle(EASY_CLUES);
+	puzzle = result.puzzle;
+	solution = result.solution;
 	current = [...puzzle];
 	selected = null;
 	hintsUsed = 0;
@@ -290,174 +372,6 @@ function startTimer() {
 		$("timer").textContent = elapsedTime();
 	}, 1000);
 }
-function elapsedTime() {
-	const seconds = Math.floor((Date.now() - startTime) / 1000);
-	return formatTime(seconds);
-}
-function formatTime(seconds) {
-	return String(Math.floor(seconds / 60)).padStart(2, "0") + ":" + String(seconds % 60).padStart(2, "0");
-}
-function formatGoldTime(timestamp) {
-	const date = new Date(timestamp * 1000),
-		pad = (n) => String(n).padStart(2, "0");
-	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-function setMessage(text, type = "") {
-	messageEl.textContent = text;
-	messageEl.className = "message" + (type ? " " + type : "");
-}
-function updateThemeColor() {
-	if (themeColorMeta)
-		themeColorMeta.setAttribute(
-			"content",
-			document.body.classList.contains("light-mode") ? "#f1f5f9" : "#0f172a"
-		);
-}
-function render() {
-	board.innerHTML = "";
-	for (let row = 0; row < BOARD_SIZE; row++)
-		for (let col = 0; col < BOARD_SIZE; col++) {
-			const position = idx(row, col),
-				boxAlt = (Math.floor(row / 3) + Math.floor(col / 3)) % 2 === 1,
-				label = `第 ${row + 1} 列，第 ${col + 1} 欄` + (current[position] ? "，" + current[position] : ""),
-				isError = checked && current[position] && current[position] !== solution[position],
-				cell = document.createElement("div");
-			cell.className =
-				"cell" +
-				(boxAlt ? " box-alt" : "") +
-				(col % 3 === 2 && col !== 8 ? " b-right" : "") +
-				(row % 3 === 2 && row !== 8 ? " b-bottom" : "") +
-				(puzzle[position] ? " given" : "") +
-				(position === selected ? " selected" : "") +
-				(isError ? " error" : "");
-			cell.setAttribute("role", "gridcell");
-			cell.setAttribute("tabindex", "0");
-			cell.setAttribute("aria-label", label);
-			if (current[position]) cell.textContent = current[position];
-			cell.onclick = () => {
-				selected = position;
-				render();
-			};
-			cell.onkeydown = (event) => {
-				if (event.key === "Enter" || event.key === " ") {
-					event.preventDefault();
-					selected = position;
-					render();
-				}
-			};
-			board.appendChild(cell);
-		}
-}
-function showCelebration() {
-	const seconds = Math.floor((Date.now() - startTime) / 1000);
-	celebrationMessage.textContent = `你在 ${formatTime(seconds)} 內完成，使用提示 ${hintsUsed} 次。`;
-	celebration.classList.add("open");
-	const colors = ["#38bdf8", "#f472b6", "#facc15", "#4ade80", "#a78bfa", "#fb923c"];
-	for (let i = 0; i < 60; i++) {
-		const piece = document.createElement("div");
-		piece.className = "confetti";
-		piece.style.left = Math.random() * 100 + "%";
-		piece.style.background = colors[i % colors.length];
-		piece.style.animationDelay = Math.random() * 0.8 + "s";
-		piece.style.animationDuration = 2.2 + Math.random() * 1.4 + "s";
-		celebration.appendChild(piece);
-	}
-	setTimeout(() => {
-		celebration.querySelectorAll(".confetti").forEach((piece) => piece.remove());
-	}, 4200);
-}
-function finishGame() {
-	solved = true;
-	clearInterval(timerId);
-	recordGameSolved();
-	setMessage("完成！時間：" + elapsedTime(), "success");
-	$("timer").style.visibility = "hidden";
-	showCelebration();
-}
-function checkIncorrect() {
-	checked = true;
-	const incorrect = current.reduce(
-		(total, entry, position) => total + (entry && entry !== solution[position] ? 1 : 0),
-		0
-	);
-	setMessage(incorrect ? `有 ${incorrect} 個錯誤格子。` : "目前沒有錯誤。", incorrect ? "error" : "info");
-	render();
-}
-function input(value) {
-	if (selected === null || solved || puzzle[selected]) return;
-	current[selected] = value;
-	checked = false;
-	setMessage("", "");
-	if (current.every((entry, index) => entry === solution[index])) {
-		finishGame();
-	} else if (current.every((entry) => entry !== 0)) {
-		checkIncorrect();
-	}
-	render();
-}
-
-for (let value = 1; value <= BOARD_SIZE; value++) {
-	const button = document.createElement("button");
-	button.textContent = value;
-	button.setAttribute("aria-label", "輸入 " + value);
-	button.onclick = () => input(value);
-	pad.appendChild(button);
-}
-const erase = document.createElement("button");
-erase.className = "erase";
-erase.textContent = "⌫";
-erase.setAttribute("aria-label", "清除格子");
-erase.onclick = () => {
-	if (selected !== null && !puzzle[selected]) {
-		current[selected] = 0;
-		checked = false;
-		setMessage("", "");
-		render();
-	}
-};
-pad.appendChild(erase);
-
-$("new").onclick = () => {
-	if (solved || confirm("開始新遊戲？")) newGame();
-};
-$("check").onclick = checkIncorrect;
-$("hint").onclick = () => {
-	if (solved) return;
-	const emptyPositions = current
-		.map((entry, position) => (entry ? null : position))
-		.filter((position) => position !== null);
-	if (!emptyPositions.length) return;
-	const position = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-	current[position] = solution[position];
-	selected = position;
-	checked = false;
-	setMessage("", "");
-	hintsUsed++;
-	$("hint").textContent = "提示：" + hintsUsed;
-	if (current.every((entry, index) => entry === solution[index])) finishGame();
-	if (current.every((entry) => entry !== 0)) checkIncorrect();
-	render();
-};
-colorModeButton.onclick = () => {
-	document.body.classList.toggle("light-mode");
-	const mode = document.body.classList.contains("light-mode") ? "light" : "dark";
-	try {
-		localStorage.setItem(COLOR_KEY, mode);
-	} catch {}
-	updateThemeColor();
-};
-try {
-	if (localStorage.getItem(COLOR_KEY) === "light") document.body.classList.add("light-mode");
-} catch {}
-updateThemeColor();
-quoteCard.onclick = showQuote;
-quoteCard.addEventListener("keydown", (event) => {
-	if (event.key === "Enter" || event.key === " ") {
-		event.preventDefault();
-		showQuote();
-	}
-});
-
 function readGoldCache() {
 	try {
 		return JSON.parse(localStorage.getItem(GOLD_CACHE_KEY));
@@ -482,24 +396,61 @@ function todayRefreshTime() {
 function shouldRefreshDaily(cache) {
 	const now = new Date();
 	if (now < todayRefreshTime()) return false;
-	const fetchedAt = cache?.fetchedAt || 0;
-	return fetchedAt < todayRefreshTime().getTime();
+	return (cache?.fetchedAt || 0) < todayRefreshTime().getTime();
+}
+function setText(id, value) {
+	$(id).textContent = value;
 }
 function renderGold(data) {
 	if (data && typeof data.price === "number") {
 		lastGoldData = data;
-		goldPriceEl.innerHTML = `金價：<strong>$${data.price.toFixed(2)}</strong>（${formatGoldTime(data.timestamp)}）`;
-	} else goldPriceEl.textContent = "金價資料無法取得";
+		goldPriceValue.textContent = `$${data.price.toFixed(2)}`;
+		goldPriceTime.textContent = formatGoldTime(data.timestamp);
+	} else {
+		goldPriceValue.textContent = "資料無法取得";
+		goldPriceTime.textContent = "";
+	}
+}
+function showGoldDetails() {
+	const data = lastGoldData;
+	goldEmpty.hidden = Boolean(data);
+	goldDetails.hidden = !data;
+	if (!data) return;
+	const metalNames = { XAU: "黃金", XAG: "白銀", XPT: "鉑金", XPD: "鈀金" };
+	const currency = data.currency_info || {};
+	const melt = data.melt_price_per_gram || {};
+	const unitPrice = data.price_per_unit || {};
+	const change = Number(data.change || 0);
+	const changePercent = Number(data.change_percent || 0);
+	const changeText = `${change > 0 ? "+" : ""}${change.toFixed(2)}（${change > 0 ? "+" : ""}${changePercent.toFixed(2)}%）`;
+	setText("gold-metal", metalNames[data.metal] || data.metal || "—");
+	setText("gold-currency", currency.name ? `${currency.name}（${currency.symbol || currency.code || data.currency}）` : data.currency || "—");
+	setText("gold-current", `$${data.price.toFixed(2)}`);
+	setText("gold-updated", formatGoldTime(data.timestamp));
+	setText("gold-change", changeText);
+	setText("gold-prev-close", `$${Number(data.prev_close_price || 0).toFixed(2)}`);
+	setText("gold-open", `$${Number(data.open_price || 0).toFixed(2)}`);
+	setText("gold-high", `$${Number(data.high_price || 0).toFixed(2)}`);
+	setText("gold-low", `$${Number(data.low_price || 0).toFixed(2)}`);
+	setText("gold-open-time", formatGoldTime(data.open_time));
+	setText("gold-bid", `$${Number(data.bid || 0).toFixed(2)}`);
+	setText("gold-ask", `$${Number(data.ask || 0).toFixed(2)}`);
+	setText("gold-troy-ounce", `$${Number(unitPrice.troy_ounce || 0).toFixed(2)}`);
+	setText("gold-gram", `$${Number(unitPrice.gram || 0).toFixed(2)}`);
+	setText("gold-kilogram", `$${Number(unitPrice.kilogram || 0).toFixed(2)}`);
+	setText("gold-unit", data.unit === "troy_ounce" ? "金衡盎司" : data.unit || "—");
+	setText("gold-24k", `$${Number(melt["24k"] || 0).toFixed(2)}`);
+	setText("gold-22k", `$${Number(melt["22k"] || 0).toFixed(2)}`);
+	setText("gold-18k", `$${Number(melt["18k"] || 0).toFixed(2)}`);
+	setText("gold-exchange", data.exchange || "—");
+	goldDetails.querySelector("#gold-change").parentElement.classList.toggle("up", change > 0);
+	goldDetails.querySelector("#gold-change").parentElement.classList.toggle("down", change < 0);
 }
 function fetchGoldPrice(force = false, showDetails = false) {
 	const cache = readGoldCache();
-	if (
-		!force &&
-		cache?.data &&
-		Date.now() - cache.fetchedAt < GOLD_REFRESH_MS &&
-		!shouldRefreshDaily(cache)
-	) {
+	if (!force && cache?.data && Date.now() - cache.fetchedAt < GOLD_REFRESH_MS && !shouldRefreshDaily(cache)) {
 		renderGold(cache.data);
+		if (showDetails) showGoldDetails();
 		return;
 	}
 	if (typeof fetch !== "function") return;
@@ -507,132 +458,168 @@ function fetchGoldPrice(force = false, showDetails = false) {
 	fetch(GOLD_API, {
 		method: "GET",
 		headers: { "x-access-token": GOLD_API_KEY, "Content-Type": "application/json" },
-		redirect: "follow",
-	})
-		.then((response) => {
-			if (!response.ok) throw new Error("HTTP " + response.status);
-			return response.json();
-		})
-		.then((data) => {
-			if (data && typeof data.price === "number") {
-				writeGoldCache(data);
-				renderGold(data);
-				if (showDetails) showGoldDetails();
-			} else renderGold(null);
-		})
-		.catch(() => {
-			if (cache?.data) renderGold(cache.data);
-			else goldPriceEl.textContent = "金價資料無法取得";
-		});
-}
-function goldStat(label, value, cls = "") {
-	return `<div class="stat ${cls}"><span>${label}</span><strong>${value}</strong></div>`;
-}
-function showGoldDetails() {
-	if (!lastGoldData) {
-		goldDetails.innerHTML = '<p class="empty">金價資料尚未載入。</p>';
-	} else {
-		const d = lastGoldData,
-			metalNames = { XAU: "黃金", XAG: "白銀", XPT: "鉑金", XPD: "鈀金" },
-			changeCls = (d.change > 0) ? "up" : (d.change < 0) ? "down" : "",
-			changeText = `${(d.change > 0) ? "+" : ""}${Number(d.change).toFixed(2)}（${(d.change > 0) ? "+" : ""}${Number(d.change_percent).toFixed(2)}%）`,
-			melt = d.melt_price_per_gram || {},
-			unitPrice = d.price_per_unit || {},
-			currency = d.currency_info || {};
-		goldDetails.innerHTML = `<div class="stats-grid">${goldStat("金屬", metalNames[d.metal] || d.metal)}${goldStat("貨幣", currency.name ? `${currency.name}（${currency.symbol || currency.code || d.currency}）` : d.currency)}${goldStat("目前價格", `$${d.price.toFixed(2)}`)}${goldStat("更新時間", formatGoldTime(d.timestamp))}</div><div class="gold-section">市場行情</div><div class="stats-grid">${goldStat("漲跌", changeText, changeCls)}${goldStat("前收盤", `$${Number(d.prev_close_price).toFixed(2)}`)}${goldStat("開盤價", `$${Number(d.open_price).toFixed(2)}`)}${goldStat("當日最高", `$${Number(d.high_price).toFixed(2)}`)}${goldStat("當日最低", `$${Number(d.low_price).toFixed(2)}`)}${goldStat("開盤時間", formatGoldTime(d.open_time))}</div><div class="gold-section">買賣價</div><div class="stats-grid">${goldStat("買入價（Bid）", `$${Number(d.bid).toFixed(2)}`)}${goldStat("賣出價（Ask）", `$${Number(d.ask).toFixed(2)}`)}</div><div class="gold-section">單位換算</div><div class="stats-grid">${goldStat("每金衡盎司", `$${Number(unitPrice.troy_ounce).toFixed(2)}`)}${goldStat("每克", `$${Number(unitPrice.gram).toFixed(2)}`)}${goldStat("每公斤", `$${Number(unitPrice.kilogram).toFixed(2)}`)}${goldStat("報價單位", d.unit === "troy_ounce" ? "金衡盎司" : d.unit)}</div><div class="gold-section">成色每克價</div><div class="stats-grid">${goldStat("24K", `$${Number(melt["24k"]).toFixed(2)}`)}${goldStat("22K", `$${Number(melt["22k"]).toFixed(2)}`)}${goldStat("18K", `$${Number(melt["18k"]).toFixed(2)}`)}${goldStat("交易所", d.exchange || "—")}</div>`;
-	}
-	goldModal.classList.add("open");
-}
-function fetchAndShowGoldDetails() {
-	fetchGoldPrice(true, true);
-}
-function closeGold() {
-	goldModal.classList.remove("open");
-}
-goldBar.onclick = fetchAndShowGoldDetails;
-goldBar.addEventListener("keydown", (event) => {
-	if (event.key === "Enter" || event.key === " ") {
-		event.preventDefault();
-		showGoldDetails();
-	}
-});
-$("close-gold").onclick = closeGold;
-goldModal.addEventListener("click", (event) => {
-	if (event.target === goldModal) closeGold();
-});
-fetchGoldPrice();
-setInterval(() => {
-	const cache = readGoldCache();
-	if (shouldRefreshDaily(cache)) {
-		clearGoldCache();
-		fetchGoldPrice(true);
-	}
-}, 60000);
-
-function renderStats() {
-	const stats = getStats(),
-		average = stats.gamesSolved ? Math.round(stats.totalTimeSeconds / stats.gamesSolved) : null,
-		completionRate = stats.gamesStarted ? Math.round((stats.gamesSolved / stats.gamesStarted) * 100) : 0;
-	statsGrid.innerHTML = `<div class="stat"><span>已開始遊戲</span><strong>${stats.gamesStarted}</strong></div><div class="stat"><span>已完成遊戲</span><strong>${stats.gamesSolved}</strong></div><div class="stat"><span>完成率</span><strong>${completionRate}%</strong></div><div class="stat"><span>最佳時間</span><strong>${stats.bestTimeSeconds === null ? "—" : formatTime(stats.bestTimeSeconds)}</strong></div><div class="stat"><span>平均時間</span><strong>${average === null ? "—" : formatTime(average)}</strong></div><div class="stat"><span>使用提示</span><strong>${stats.totalHints}</strong></div><div class="stat"><span>總遊玩時間</span><strong>${formatTime(stats.totalTimeSeconds)}</strong></div>`;
-	historyList.innerHTML = (stats.history.length) ? "" : '<li class="empty">尚無已完成遊戲。</li>';
-	stats.history.forEach((entry) => {
-		const item = document.createElement("li");
-		const date = new Date(entry.completedAt).toLocaleString();
-		item.innerHTML = `<span>${date}</span><span>${formatTime(entry.timeSeconds)} · ${entry.hints} 次提示</span>`;
-		historyList.appendChild(item);
+		redirect: "follow"
+	}).then((response) => {
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		return response.json();
+	}).then((data) => {
+		if (data && typeof data.price === "number") {
+			writeGoldCache(data);
+			renderGold(data);
+		} else renderGold(null);
+		if (showDetails) showGoldDetails();
+	}).catch(() => {
+		renderGold(cache?.data || null);
+		if (showDetails) showGoldDetails();
 	});
+}
+function renderStats() {
+	const stats = loadStats();
+	const average = stats.gamesSolved ? Math.round(stats.totalTimeSeconds / stats.gamesSolved) : null;
+	const completionRate = stats.gamesStarted ? Math.round((stats.gamesSolved / stats.gamesStarted) * 100) : 0;
+	setText("stat-started", String(stats.gamesStarted));
+	setText("stat-solved", String(stats.gamesSolved));
+	setText("stat-completion", `${completionRate}%`);
+	setText("stat-best", stats.bestTimeSeconds === null ? "—" : formatTime(stats.bestTimeSeconds));
+	setText("stat-average", average === null ? "—" : formatTime(average));
+	setText("stat-hints", String(stats.totalHints));
+	setText("stat-total-time", formatTime(stats.totalTimeSeconds));
+	historyEmpty.hidden = stats.history.length > 0;
+	stats.history.forEach((entry, index) => {
+		const item = historyItems[index];
+		if (!item) return;
+		item.hidden = false;
+		item.querySelector(".history-date").textContent = new Date(entry.completedAt).toLocaleString();
+		item.querySelector(".history-meta").textContent = `${formatTime(entry.timeSeconds)} · ${entry.hints} 次提示`;
+	});
+	for (let index = stats.history.length; index < historyItems.length; index++) {
+		historyItems[index].hidden = true;
+	}
 }
 function openStats() {
 	renderStats();
-	statsModal.classList.add("open");
+	$("stats-modal").classList.add("open");
 }
 function closeStats() {
-	statsModal.classList.remove("open");
+	$("stats-modal").classList.remove("open");
 }
-$("stats").onclick = openStats;
-$("close-stats").onclick = closeStats;
-$("clear-stats").onclick = () => {
-	if (confirm("清除所有已儲存的數獨統計與紀錄？")) {
-		localStorage.removeItem(STATS_KEY);
-		renderStats();
-	}
-};
-statsModal.addEventListener("click", (event) => {
-	if (event.target === statsModal) closeStats();
-});
-
-$("close-celebration").onclick = () => {
-	celebration.classList.remove("open");
-	celebration.querySelectorAll(".confetti").forEach((piece) => piece.remove());
-};
-celebration.addEventListener("click", (event) => {
-	if (event.target === celebration) {
-		celebration.classList.remove("open");
-		celebration.querySelectorAll(".confetti").forEach((piece) => piece.remove());
-	}
-});
-document.addEventListener("keydown", (event) => {
-	const overlayOpen =
-		statsModal.classList.contains("open") ||
-		celebration.classList.contains("open") ||
-		goldModal.classList.contains("open");
-	if (event.key === "Escape") {
-		closeStats();
-		closeGold();
-		celebration.classList.remove("open");
-		return;
-	}
-	if (overlayOpen) return;
-	if (event.key >= "1" && event.key <= "9") input(+event.key);
-	if (event.key === "Backspace" || event.key === "Delete") {
-		if (selected !== null && !puzzle[selected]) {
-			current[selected] = 0;
-			checked = false;
-			setMessage("", "");
+function closeGold() {
+	$("gold-modal").classList.remove("open");
+}
+function init() {
+	cells.forEach((cell, position) => {
+		cell.addEventListener("click", () => {
+			selected = position;
 			render();
+		});
+		cell.addEventListener("keydown", (event) => {
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault();
+				selected = position;
+				render();
+			}
+		});
+	});
+	padButtons.forEach((button) => {
+		const value = Number(button.dataset.value);
+		button.addEventListener("click", () => {
+			if (value === 0) eraseSelected();
+			else input(value);
+		});
+	});
+	$("new").addEventListener("click", () => {
+		if (solved || confirm("開始新遊戲？")) newGame();
+	});
+	$("check").addEventListener("click", checkIncorrect);
+	$("hint").addEventListener("click", () => {
+		if (solved) return;
+		const emptyPositions = current.map((entry, position) => entry ? null : position).filter((position) => position !== null);
+		if (!emptyPositions.length) return;
+		const position = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+		current[position] = solution[position];
+		selected = position;
+		checked = false;
+		setMessage("", "");
+		hintsUsed++;
+		$("hint").textContent = `提示：${hintsUsed}`;
+		if (current.every((entry, index) => entry === solution[index])) finishGame();
+		else if (current.every((entry) => entry !== 0)) checkIncorrect();
+		render();
+	});
+	$("color-mode").addEventListener("click", () => {
+		document.body.classList.toggle("light-mode");
+		try {
+			localStorage.setItem(COLOR_KEY, document.body.classList.contains("light-mode") ? "light" : "dark");
+		} catch {}
+		updateThemeColor();
+	});
+	try {
+		if (localStorage.getItem(COLOR_KEY) === "light") document.body.classList.add("light-mode");
+	} catch {}
+	updateThemeColor();
+	$("quote").addEventListener("click", showQuote);
+	$("quote").addEventListener("keydown", (event) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			showQuote();
 		}
-	}
-});
+	});
+	goldBar.addEventListener("click", () => fetchGoldPrice(true, true));
+	goldBar.addEventListener("keydown", (event) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			showGoldDetails();
+		}
+	});
+	$("close-gold").addEventListener("click", closeGold);
+	$("gold-modal").addEventListener("click", (event) => {
+		if (event.target === $("gold-modal")) closeGold();
+	});
+	$("stats").addEventListener("click", openStats);
+	$("close-stats").addEventListener("click", closeStats);
+	$("clear-stats").addEventListener("click", () => {
+		if (confirm("清除所有已儲存的數獨統計與紀錄？")) {
+			localStorage.removeItem(STATS_KEY);
+			renderStats();
+		}
+	});
+	$("stats-modal").addEventListener("click", (event) => {
+		if (event.target === $("stats-modal")) closeStats();
+	});
+	$("close-celebration").addEventListener("click", () => {
+		$("celebration").classList.remove("open");
+		confettiPieces.forEach((piece) => {
+			piece.hidden = true;
+		});
+	});
+	$("celebration").addEventListener("click", (event) => {
+		if (event.target === $("celebration")) {
+			$("celebration").classList.remove("open");
+			confettiPieces.forEach((piece) => {
+				piece.hidden = true;
+			});
+		}
+	});
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") {
+			closeStats();
+			closeGold();
+			$("celebration").classList.remove("open");
+			return;
+		}
+		if (event.key >= "1" && event.key <= "9") input(Number(event.key));
+		if (event.key === "Backspace" || event.key === "Delete") eraseSelected();
+	});
+	fetchGoldPrice();
+	setInterval(() => {
+		const cache = readGoldCache();
+		if (shouldRefreshDaily(cache)) {
+			clearGoldCache();
+			fetchGoldPrice(true);
+		}
+	}, 60000);
+	newGame(false);
+}
 
 global.SudokuGameMain = {
 	newGame,
@@ -641,5 +628,9 @@ global.SudokuGameMain = {
 	fullGrid,
 	countSolutions,
 	makePuzzle,
+	init
 };
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();
 })(window);

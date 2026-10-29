@@ -5,65 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0f172a" />
 <title>數獨</title>
-<link rel="apple-touch-icon" sizes="180x180"
-href="data:image/png;base64,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"
-/>
-<link rel="icon" type="image/png" sizes="32x32"
-href="data:image/png;base64,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"
-/>
 <link rel="manifest" href="site.webmanifest" />
 <link rel="stylesheet" href="./assets/styles.css">
 </head>
 <body>
 <div class="app">
 	<div class="controls">
-		<button id="new">新遊戲</button><button id="check">檢查</button><button id="stats">統計</button
-		><button id="color-mode">配色</button>
+		<button id="new" type="button">新遊戲</button>
+		<button id="check" type="button">檢查</button>
+		<button id="stats" type="button">統計</button>
+		<button id="color-mode" type="button">配色</button>
 	</div>
-	<div id="board" role="grid" aria-label="數獨棋盤"></div>
+	<div id="board" role="grid" aria-label="數獨棋盤">
+		<div class="cell" id="cell-0" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-1" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-2" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-3" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-4" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-5" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-6" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-7" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-8" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-9" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-10" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-11" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-12" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-13" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-14" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-15" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-16" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-17" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-18" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-19" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-20" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-21" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-22" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-23" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-24" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-25" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-26" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-27" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-28" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-29" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-30" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-31" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-32" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-33" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-34" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-35" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-36" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-37" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-38" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-39" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-40" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-41" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-42" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-43" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-44" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-45" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-46" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-47" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-48" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-49" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-50" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-51" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-52" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-53" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-54" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-55" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-56" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-57" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-58" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-59" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-60" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-61" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-62" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-63" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-64" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-65" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-66" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-67" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-68" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-69" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-70" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-71" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-72" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-73" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-74" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-75" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-76" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-77" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-78" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-79" role="gridcell" tabindex="0"></div>
+		<div class="cell" id="cell-80" role="gridcell" tabindex="0"></div>
+	</div>
 	<div class="status">
 		<span id="timer">00:00</span>
 		<div class="message" id="message" role="status"></div>
-		<button id="hint">提示：0</button>
+		<button id="hint" type="button">提示：0</button>
 	</div>
 	<div class="quote" id="quote" role="button" tabindex="0" aria-label="顯示另一句中華文化經典語句">
 		<span id="quote-text"></span>
 	</div>
 	<div class="gold-bar" id="gold-bar" role="button" tabindex="0" aria-label="顯示金價詳細資訊">
-		<span id="gold-price">金價載入中…</span>
+		<span>金價：<strong id="gold-price-value">載入中…</strong></span>
+		<span id="gold-price-time"></span>
 	</div>
 	<div class="bottom-stack">
-		<div class="pad" id="pad"></div>
+		<div class="pad" id="pad">
+			<button type="button" data-value="1" aria-label="輸入 1">1</button>
+			<button type="button" data-value="2" aria-label="輸入 2">2</button>
+			<button type="button" data-value="3" aria-label="輸入 3">3</button>
+			<button type="button" data-value="4" aria-label="輸入 4">4</button>
+			<button type="button" data-value="5" aria-label="輸入 5">5</button>
+			<button type="button" data-value="6" aria-label="輸入 6">6</button>
+			<button type="button" data-value="7" aria-label="輸入 7">7</button>
+			<button type="button" data-value="8" aria-label="輸入 8">8</button>
+			<button type="button" data-value="9" aria-label="輸入 9">9</button>
+			<button type="button" class="erase" data-value="0" aria-label="清除格子">⌫</button>
+		</div>
 	</div>
 </div>
 <div class="modal" id="stats-modal" role="dialog" aria-modal="true" aria-labelledby="stats-title">
 	<div class="modal-card">
 		<h2 id="stats-title">遊戲統計</h2>
-		<div class="stats-grid" id="stats-grid"></div>
+		<div class="stats-grid">
+			<div class="stat"><span>已開始遊戲</span><strong id="stat-started">0</strong></div>
+			<div class="stat"><span>已完成遊戲</span><strong id="stat-solved">0</strong></div>
+			<div class="stat"><span>完成率</span><strong id="stat-completion">0%</strong></div>
+			<div class="stat"><span>最佳時間</span><strong id="stat-best">—</strong></div>
+			<div class="stat"><span>平均時間</span><strong id="stat-average">—</strong></div>
+			<div class="stat"><span>使用提示</span><strong id="stat-hints">0</strong></div>
+			<div class="stat"><span>總遊玩時間</span><strong id="stat-total-time">00:00</strong></div>
+		</div>
 		<h3>最近遊戲</h3>
-		<ul class="history" id="history"></ul>
+		<ul class="history" id="history">
+			<li class="empty" id="history-empty">尚無已完成遊戲。</li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+			<li class="history-item" hidden><span class="history-date"></span><span class="history-meta"></span></li>
+		</ul>
 		<div class="modal-actions">
-			<button id="clear-stats">清除統計</button><button id="close-stats">關閉</button>
+			<button id="clear-stats" type="button">清除統計</button>
+			<button id="close-stats" type="button">關閉</button>
 		</div>
 	</div>
 </div>
 <div class="modal" id="gold-modal" role="dialog" aria-modal="true" aria-labelledby="gold-title">
 	<div class="modal-card">
 		<h2 id="gold-title">金價詳細資訊</h2>
-		<div id="gold-details"></div>
-		<div class="modal-actions"><button id="close-gold">關閉</button></div>
+		<p class="empty" id="gold-empty">金價資料尚未載入。</p>
+		<div id="gold-details" hidden>
+			<div class="stats-grid">
+				<div class="stat"><span>金屬</span><strong id="gold-metal"></strong></div>
+				<div class="stat"><span>貨幣</span><strong id="gold-currency"></strong></div>
+				<div class="stat"><span>目前價格</span><strong id="gold-current"></strong></div>
+				<div class="stat"><span>更新時間</span><strong id="gold-updated"></strong></div>
+			</div>
+			<div class="gold-section">市場行情</div>
+			<div class="stats-grid">
+				<div class="stat"><span>漲跌</span><strong id="gold-change"></strong></div>
+				<div class="stat"><span>前收盤</span><strong id="gold-prev-close"></strong></div>
+				<div class="stat"><span>開盤價</span><strong id="gold-open"></strong></div>
+				<div class="stat"><span>當日最高</span><strong id="gold-high"></strong></div>
+				<div class="stat"><span>當日最低</span><strong id="gold-low"></strong></div>
+				<div class="stat"><span>開盤時間</span><strong id="gold-open-time"></strong></div>
+			</div>
+			<div class="gold-section">買賣價</div>
+			<div class="stats-grid">
+				<div class="stat"><span>買入價（Bid）</span><strong id="gold-bid"></strong></div>
+				<div class="stat"><span>賣出價（Ask）</span><strong id="gold-ask"></strong></div>
+			</div>
+			<div class="gold-section">單位換算</div>
+			<div class="stats-grid">
+				<div class="stat"><span>每金衡盎司</span><strong id="gold-troy-ounce"></strong></div>
+				<div class="stat"><span>每克</span><strong id="gold-gram"></strong></div>
+				<div class="stat"><span>每公斤</span><strong id="gold-kilogram"></strong></div>
+				<div class="stat"><span>報價單位</span><strong id="gold-unit"></strong></div>
+			</div>
+			<div class="gold-section">成色每克價</div>
+			<div class="stats-grid">
+				<div class="stat"><span>24K</span><strong id="gold-24k"></strong></div>
+				<div class="stat"><span>22K</span><strong id="gold-22k"></strong></div>
+				<div class="stat"><span>18K</span><strong id="gold-18k"></strong></div>
+				<div class="stat"><span>交易所</span><strong id="gold-exchange"></strong></div>
+			</div>
+		</div>
+		<div class="modal-actions"><button id="close-gold" type="button">關閉</button></div>
 	</div>
 </div>
 <div class="celebration" id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebration-title">
 	<div class="celebration-card">
 		<h2 id="celebration-title">恭喜！</h2>
 		<p id="celebration-message"></p>
-		<button id="close-celebration">繼續</button>
+		<button id="close-celebration" type="button">繼續</button>
+		<div class="confetti-layer">
+			<div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div><div class="confetti" hidden></div>
+		</div>
 	</div>
 </div>
 <script src="./assets/sudoku-game-main.js"></script>
-<script>const {newGame} = SudokuGameMain;
-SudokuGameMain.newGame(false);
-</script>
+<script>SudokuGameMain.newGame(false);</script>
 </body>
 </html>
