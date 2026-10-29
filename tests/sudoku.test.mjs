@@ -24,6 +24,7 @@ function loadGameModule() {
 		},
 		appendChild() {},
 		remove() {},
+		querySelector() { return element(); },
 		querySelectorAll() { return []; },
 		addEventListener() {},
 		setAttribute() {},
@@ -135,9 +136,9 @@ test('errors are only highlighted after manual check', () => {
 	assert.ok(/isError\s*=\s*checked\s*&&/.test(gameScript));
 });
 
-test('text selection is disabled globally', () => {
-	assert.ok(/\*\s*\{[^}]*user-select\s*:\s*none/.test(css));
-	assert.ok(/-webkit-touch-callout\s*:\s*none/.test(css));
+test('text selection is disabled for game controls', () => {
+	assert.ok(/\.cell\s*\{[^}]*user-select\s*:\s*none/.test(css));
+	assert.ok(/button\s*\{[^}]*user-select\s*:\s*none/.test(css));
 });
 
 test('top controls use a 4px gap', () => {
