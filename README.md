@@ -11,9 +11,12 @@ https://makinggit.github.io/sudoku-html5-game/
 - 9x9 Sudoku board with a responsive layout
 - Easy puzzles only, with 45 given numbers
 - Every puzzle has exactly one solution
+- Automatic error checking once all cells are filled
 - Manual error checking via the Check button
 - Hint counter instead of a mistake counter
 - Game timer
+- Alternating light/dark shading for the nine 3x3 boxes
+- Live gold price (XAU/USD) with a details view
 - Light and dark color modes, with the preference saved locally
 - Game statistics and recent-game history
 - Keyboard and mouse support
@@ -23,10 +26,11 @@ https://makinggit.github.io/sudoku-html5-game/
 
 1. Open `index.html` in a browser, or visit the live demo.
 2. Click an empty cell.
-3. Enter a number from 1 to 9 using the on-screen keypad or keyboard.
+3. Enter a number from 1 to 9 using the on-screen keypad or keyboard. The number appears immediately.
 4. Fill every row, column, and 3x3 box with the numbers 1 through 9.
-5. Use **Check** to identify incorrect entries; incorrect cells turn red.
-6. Use **Hint** if you need help; each use increments the hint counter.
+5. When every cell is filled, the game automatically checks your entries; incorrect cells turn red.
+6. You can also press **Check** at any time to check the current board manually.
+7. Use **Hint** (in the status bar) if you need help; each use increments the hint counter.
 
 ## Controls
 
@@ -35,17 +39,28 @@ https://makinggit.github.io/sudoku-html5-game/
 | Select a cell | Click it, or focus it and press `Enter` or `Space` |
 | Enter a number | Click 1-9 or press `1`-`9` |
 | Clear a cell | Click `⌫`, press `Backspace`, or press `Delete` |
-| Check answers | Click **Check** |
-| Get a hint | Click **Hint** |
+| Check answers | Click **Check**, or fill the last empty cell |
+| Get a hint | Click **Hint** in the status bar |
 | Start a new puzzle | Click **New Game** |
 | Switch color mode | Click **Color** |
 | View statistics | Click **Stats** |
+| View gold price details | Click the gold price bar |
 
 ## Checking answers
 
-The game does **not** automatically validate entries or highlight errors while you play.
+The game does **not** highlight errors while you play.
 
-Press **Check** to compare your current entries with the puzzle solution. Incorrect cells are highlighted in red, and the message area shows how many incorrect cells were found. Editing or erasing a highlighted cell removes its red highlight; press **Check** again to recheck the board.
+When you fill the last empty cell, the game automatically compares your entries with the puzzle solution. Incorrect cells are highlighted in red, and the message area shows how many incorrect cells were found. Editing or erasing a highlighted cell removes its red highlight and clears the message.
+
+You can also press **Check** at any time to check the current board manually.
+
+## Gold price
+
+The gold price bar shows the live XAU/USD price and its last update time.
+
+- Click the bar to view detailed market information, including change, open/high/low prices, bid/ask, unit conversions, and 24K/22K/18K per-gram prices.
+- Prices are cached in the browser to avoid unnecessary API calls.
+- The cache is refreshed once per day at 07:00 in your browser's local time.
 
 ## Hints
 
@@ -72,7 +87,8 @@ Statistics and history are stored in the browser using `localStorage`. Use **Cle
 - **Architecture:** Single-page, single-file application
 - **Puzzle generation:** Random complete-grid generation with backtracking
 - **Solution guarantee:** Removal is validated with a solution-counting solver
-- **Storage:** `localStorage` for statistics, history, and color-mode preference
+- **Gold price data:** GoldAPI.io (XAU/USD)
+- **Storage:** `localStorage` for statistics, history, color-mode preference, and gold-price cache
 - **Dependencies:** None
 
 ## Encoding
@@ -113,6 +129,7 @@ The tests cover:
 - Complete-grid generation
 - Easy puzzle generation
 - Unique-solution validation
+- Gold price display and caching
 
 ## CI
 
