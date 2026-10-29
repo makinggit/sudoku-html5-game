@@ -6,6 +6,7 @@ import path from 'node:path';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const html = readFileSync(path.join(root, 'index.html'), 'utf8');
+const css = readFileSync(path.join(root, 'assets', 'styles.css'), 'utf8');
 const gameScript = readFileSync(path.join(root, 'assets', 'sudoku-game-main.js'), 'utf8');
 
 function loadGameModule() {
@@ -135,12 +136,12 @@ test('errors are only highlighted after manual check', () => {
 });
 
 test('text selection is disabled globally', () => {
-	assert.ok(/\*\s*\{[^}]*user-select\s*:\s*none/.test(html));
-	assert.ok(/-webkit-touch-callout\s*:\s*none/.test(html));
+	assert.ok(/\*\s*\{[^}]*user-select\s*:\s*none/.test(css));
+	assert.ok(/-webkit-touch-callout\s*:\s*none/.test(css));
 });
 
 test('top controls use a 4px gap', () => {
-	assert.ok(/\.controls\s*\{[^}]*gap\s*:\s*4px/.test(html));
+	assert.ok(/\.controls\s*\{[^}]*gap\s*:\s*4px/.test(css));
 });
 
 test('gold price cache is used and refreshed daily at 07:00', () => {
