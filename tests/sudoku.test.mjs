@@ -122,23 +122,23 @@ test('mistake counter is removed and hint counter is present', () => {
 });
 
 test('errors are only highlighted after manual check', () => {
-  assert.ok(script.includes('checked=true'));
-  assert.ok(script.includes('checked=false'));
-  assert.ok(/isError=checked&&/.test(script));
+  assert.ok(/\bchecked\s*=\s*true\b/.test(script));
+  assert.ok(/\bchecked\s*=\s*false\b/.test(script));
+  assert.ok(/isError\s*=\s*checked\s*&&/.test(script));
 });
 
 test('text selection is disabled globally', () => {
-  assert.ok(/\*\{[^}]*user-select:none/.test(html));
-  assert.ok(html.includes('-webkit-touch-callout:none'));
+  assert.ok(/\*\s*\{[^}]*user-select\s*:\s*none/.test(html));
+  assert.ok(/-webkit-touch-callout\s*:\s*none/.test(html));
 });
 
 test('top controls use a 4px gap', () => {
-  assert.ok(/\.controls\{[^}]*gap:4px/.test(html));
+  assert.ok(/\.controls\s*\{[^}]*gap\s*:\s*4px/.test(html));
 });
 
 test('gold price cache is used and refreshed daily at 07:00', () => {
-  assert.ok(script.includes("GOLD_CACHE_KEY='sudoku-html5-game-gold-cache'"));
-  assert.ok(script.includes('GOLD_REFRESH_MS=21600000'));
-  assert.ok(script.includes('GOLD_DAILY_HOUR=7'));
+  assert.ok(/GOLD_CACHE_KEY\s*=\s*['"]sudoku-html5-game-gold-cache['"]/.test(script));
+  assert.ok(/GOLD_REFRESH_MS\s*=\s*21600000/.test(script));
+  assert.ok(/GOLD_DAILY_HOUR\s*=\s*7\b/.test(script));
   assert.ok(script.includes('shouldRefreshDaily'));
 });
