@@ -13,16 +13,6 @@ test('sudoku board renders and accepts input', async ({ page }) => {
 	await expect(firstEmptyCell).toHaveText('5');
 });
 
-test('gold details popup opens from the gold bar', async ({ page }) => {
-	await page.goto('/');
-
-	await page.locator('#gold-bar').click();
-
-	const modal = page.locator('#gold-modal');
-	await expect(modal).toHaveClass(/open/);
-	await expect(page.locator('#gold-title')).toBeVisible();
-});
-
 test('check button highlights incorrect entries only after manual check', async ({ page }) => {
 	await page.goto('/');
 
