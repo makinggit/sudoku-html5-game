@@ -412,11 +412,13 @@ function renderGold(data) {
 	}
 }
 function showGoldDetails() {
-	const data = lastGoldData;
+	const cache = readGoldCache();
+	const data = cache?.data || lastGoldData;
 	goldEmpty.hidden = Boolean(data);
 	goldDetails.hidden = !data;
 	goldModal.classList.add("open");
 	if (!data) return;
+	lastGoldData = data;
 	const metalNames = { XAU: "黃金", XAG: "白銀", XPT: "鉑金", XPD: "鈀金" };
 	const currency = data.currency_info || {};
 	const melt = data.melt_price_per_gram || {};
@@ -447,33 +449,6 @@ function showGoldDetails() {
 	const changeStat = $("gold-change").parentElement;
 	changeStat.classList.toggle("up", change > 0);
 	changeStat.classList.toggle("down", change < 0);
-}
-function fetchGoldPrice(force = false, showDetails = false) {
-	const cache = readGoldCache();
-	if (!force && cache?.data && Date.now() - cache.fetchedAt < GOLD_REFRESH_MS && !shouldRefreshDaily(cache)) {
-		renderGold(cache.data);
-		if (showDetails) showGoldDetails();
-		return;
-	}
-	if (typeof fetch !== "function") return;
-	if (showDetails) showGoldDetails();
-	fetch(GOLD_API, {
-		method: "GET",
-		headers: { "x-access-token": GOLD_API_KEY, "Content-Type": "application/json" },
-		redirect: "follow"
-	}).then((response) => {
-		if (!response.ok) throw new Error(`HTTP ${response.status}`);
-		return response.json();
-	}).then((data) => {
-		if (data && typeof data.price === "number") {
-			writeGoldCache(data);
-			renderGold(data);
-		} else renderGold(null);
-		if (showDetails) showGoldDetails();
-	}).catch(() => {
-		renderGold(cache?.data || null);
-		if (showDetails) showGoldDetails();
-	});
 }
 function renderStats() {
 	const stats = loadStats();
@@ -566,7 +541,7 @@ function init() {
 			showQuote();
 		}
 	});
-	goldBar.addEventListener("click", () => fetchGoldPrice(true, true));
+	goldBar.addEventListener("click", showGoldDetails);
 	goldBar.addEventListener("keydown", (event) => {
 		if (event.key === "Enter" || event.key === " ") {
 			event.preventDefault();
@@ -612,14 +587,7 @@ function init() {
 		if (event.key >= "1" && event.key <= "9") input(Number(event.key));
 		if (event.key === "Backspace" || event.key === "Delete") eraseSelected();
 	});
-	fetchGoldPrice();
-	setInterval(() => {
-		const cache = readGoldCache();
-		if (shouldRefreshDaily(cache)) {
-			clearGoldCache();
-			fetchGoldPrice(true);
-		}
-	}, 60000);
+	renderGold(readGoldCache()?.data || null);
 }
 
 global.SudokuGameMain = {
