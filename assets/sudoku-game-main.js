@@ -24,6 +24,7 @@ const goldPriceValue = $("gold-price-value");
 const goldPriceTime = $("gold-price-time");
 const goldDetails = $("gold-details");
 const goldEmpty = $("gold-empty");
+const goldModal = $("gold-modal");
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 const goldBar = $("gold-bar");
 
@@ -414,6 +415,7 @@ function showGoldDetails() {
 	const data = lastGoldData;
 	goldEmpty.hidden = Boolean(data);
 	goldDetails.hidden = !data;
+	goldModal.classList.add("open");
 	if (!data) return;
 	const metalNames = { XAU: "黃金", XAG: "白銀", XPT: "鉑金", XPD: "鈀金" };
 	const currency = data.currency_info || {};
@@ -504,7 +506,7 @@ function closeStats() {
 	$("stats-modal").classList.remove("open");
 }
 function closeGold() {
-	$("gold-modal").classList.remove("open");
+	goldModal.classList.remove("open");
 }
 function init() {
 	cells.forEach((cell, position) => {
@@ -572,8 +574,8 @@ function init() {
 		}
 	});
 	$("close-gold").addEventListener("click", closeGold);
-	$("gold-modal").addEventListener("click", (event) => {
-		if (event.target === $("gold-modal")) closeGold();
+	goldModal.addEventListener("click", (event) => {
+		if (event.target === goldModal) closeGold();
 	});
 	$("stats").addEventListener("click", openStats);
 	$("close-stats").addEventListener("click", closeStats);
