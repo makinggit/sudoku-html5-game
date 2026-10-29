@@ -37,7 +37,7 @@ const QUOTES = [
 ["三人行，必有我師焉。", "《論語》"],
 ["知之為知之，不知為不知，是知也。", "《論語》"],
 ["士不可以不弘毅，任重而道遠。", "《論語》"],
-["見賢思齊焉，見不賢而內自省也。", "《論語》"],
+["見賢思齊焉，見不賢而內自省。", "《論語》"],
 ["君子和而不同，小人同而不和。", "《論語》"],
 ["工欲善其事，必先利其器。", "《論語》"],
 ["人無遠慮，必有近憂。", "《論語》"],
@@ -636,5 +636,10 @@ document.addEventListener("keydown", (event) => {
 
 global.SudokuGameMain = {
 	newGame,
+	validPlacement,
+	shuffle,
+	fullGrid,
+	countSolutions,
+	makePuzzle,
 };
 })(window);
