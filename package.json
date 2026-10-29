@@ -1,0 +1,14 @@
+{
+	"name": "sudoku-html5-game",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:unit": "node --test tests/sudoku.test.mjs",
+		"test:e2e": "playwright test",
+		"test": "npm run test:unit && npm run test:e2e"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.49.0"
+	}
+}
