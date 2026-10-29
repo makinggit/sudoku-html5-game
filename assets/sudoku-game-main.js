@@ -13,7 +13,6 @@ const GOLD_API_KEY = "goldapi-cd2463b5a72f05b7f0a514139fb37d27-io";
 const GOLD_CACHE_KEY = "sudoku-html5-game-gold-cache";
 const GOLD_REFRESH_MS = 21600000;
 const GOLD_DAILY_HOUR = 7;
-const board = $("board");
 const pad = $("pad");
 const messageEl = $("message");
 const cells = Array.from({ length: CELL_COUNT }, (_, index) => $(`cell-${index}`));
@@ -443,8 +442,9 @@ function showGoldDetails() {
 	setText("gold-22k", `$${Number(melt["22k"] || 0).toFixed(2)}`);
 	setText("gold-18k", `$${Number(melt["18k"] || 0).toFixed(2)}`);
 	setText("gold-exchange", data.exchange || "—");
-	goldDetails.querySelector("#gold-change").parentElement.classList.toggle("up", change > 0);
-	goldDetails.querySelector("#gold-change").parentElement.classList.toggle("down", change < 0);
+	const changeStat = $("gold-change").parentElement;
+	changeStat.classList.toggle("up", change > 0);
+	changeStat.classList.toggle("down", change < 0);
 }
 function fetchGoldPrice(force = false, showDetails = false) {
 	const cache = readGoldCache();
@@ -618,7 +618,6 @@ function init() {
 			fetchGoldPrice(true);
 		}
 	}, 60000);
-	newGame(false);
 }
 
 global.SudokuGameMain = {
