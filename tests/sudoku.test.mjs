@@ -151,3 +151,9 @@ test('gold price cache refreshes every 30 minutes', () => {
 	assert.ok(!gameScript.includes('GOLD_DAILY_HOUR'));
 	assert.ok(!gameScript.includes('shouldRefreshDaily'));
 });
+
+test('game script is complete, executable, and not a placeholder', () => {
+	assert.ok(!gameScript.includes('PLACEHOLDER'));
+	assert.ok(gameScript.includes('global.SudokuGameMain'));
+	assert.doesNotThrow(() => new Function(gameScript));
+});

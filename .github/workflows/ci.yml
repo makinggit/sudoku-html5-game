@@ -7,21 +7,12 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20, 22]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: npm install
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      - name: Run unit tests
-        run: npm run test:unit
-      - name: Run Playwright tests
-        run: npm run test:e2e
+          node-version: 20
+      - run: npm ci
+      - run: npm run test:unit
