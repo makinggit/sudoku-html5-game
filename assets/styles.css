@@ -20,7 +20,7 @@
 }
 body.light-mode {
 	--bg: #f1f5f9;
-	--panel: #ffffff;
+	--panel: #aaaaaa;
 	--board: #ffffff;
 	--cell-border: #cbd5e1;
 	--strong-border: #64748b;
