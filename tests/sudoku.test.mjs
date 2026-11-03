@@ -145,9 +145,9 @@ test('top controls use a 4px gap', () => {
 	assert.ok(/\.controls\s*\{[^}]*gap\s*:\s*4px/.test(css));
 });
 
-test('gold price cache is used and refreshed daily at 07:00', () => {
+test('gold price cache refreshes every 30 minutes', () => {
 	assert.ok(/GOLD_CACHE_KEY\s*=\s*['"]sudoku-html5-game-gold-cache['"]/.test(gameScript));
-	assert.ok(/GOLD_REFRESH_MS\s*=\s*21600000/.test(gameScript));
-	assert.ok(/GOLD_DAILY_HOUR\s*=\s*7\b/.test(gameScript));
-	assert.ok(gameScript.includes('shouldRefreshDaily'));
+	assert.ok(/GOLD_REFRESH_MS\s*=\s*1800000/.test(gameScript));
+	assert.ok(!gameScript.includes('GOLD_DAILY_HOUR'));
+	assert.ok(!gameScript.includes('shouldRefreshDaily'));
 });
