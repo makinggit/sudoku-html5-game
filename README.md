@@ -16,7 +16,7 @@ https://makinggit.github.io/sudoku-html5-game/
 - Hint counter instead of a mistake counter
 - Game timer
 - Alternating light/dark shading for the nine 3x3 boxes
-- Live gold price (XAU/USD) with a details view
+- Live precious-metal prices for gold, platinum, palladium, and silver
 - Light and dark color modes, with the preference saved locally
 - Game statistics and recent-game history
 - Keyboard and mouse support
@@ -44,7 +44,7 @@ https://makinggit.github.io/sudoku-html5-game/
 | Start a new puzzle | Click **New Game** |
 | Switch color mode | Click **Color** |
 | View statistics | Click **Stats** |
-| View gold price details | Click the gold price bar |
+| Refresh a metal price | Click its metal card |
 
 ## Checking answers
 
@@ -54,13 +54,24 @@ When you fill the last empty cell, the game automatically compares your entries 
 
 You can also press **Check** at any time to check the current board manually.
 
-## Gold price
+## Precious-metal prices
 
-The gold price bar shows the live XAU/USD price and its last update time.
+The gold bar shows four metals in this order:
 
-- Click the bar to view detailed market information, including change, open/high/low prices, bid/ask, unit conversions, and 24K/22K/18K per-gram prices.
-- Prices are cached in the browser to avoid unnecessary API calls.
-- The cache is refreshed once per day at 07:00 in your browser's local time.
+1. 黃金 (Gold, XAU)
+2. 鉑金 (Platinum, XPT)
+3. 鈀金 (Palladium, XPD)
+4. 白銀 (Silver, XAG)
+
+For each metal:
+
+- If there is no cached price, or the cache is older than 30 minutes, the card shows **按此更新**.
+- While a price is being fetched, the card shows `...`.
+- After a successful update, the price appears with a pop animation.
+- If an update fails but an older cached price exists, the older price remains visible.
+- Click a metal card to force-refresh that metal.
+- Prices are cached separately for each metal in `localStorage`.
+- The cache expires after 30 minutes; the app checks every minute and refreshes expired prices automatically.
 
 ## Hints
 
@@ -87,8 +98,8 @@ Statistics and history are stored in the browser using `localStorage`. Use **Cle
 - **Architecture:** Single-page, single-file application
 - **Puzzle generation:** Random complete-grid generation with backtracking
 - **Solution guarantee:** Removal is validated with a solution-counting solver
-- **Gold price data:** GoldAPI.io (XAU/USD)
-- **Storage:** `localStorage` for statistics, history, color-mode preference, and gold-price cache
+- **Precious-metal data:** GoldAPI.io for XAU, XPT, XPD, and XAG
+- **Storage:** `localStorage` for statistics, history, color-mode preference, and per-metal price cache
 - **Dependencies:** None
 
 ## Encoding
@@ -107,7 +118,7 @@ When editing this project, configure your editor to save files as UTF-8 without 
 .
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # GitHub Actions test workflow
+│       └── ci.yml          # GitHub Actions unit-test workflow
 ├── tests/
 │   └── sudoku.test.mjs     # Node.js built-in test suite
 ├── index.html              # Complete Sudoku game
@@ -116,7 +127,13 @@ When editing this project, configure your editor to save files as UTF-8 without 
 
 ## Testing
 
-Run the test suite locally with Node.js 20 or later:
+Run the unit-test suite locally with Node.js 20 or later:
+
+```bash
+npm run test:unit
+```
+
+Or directly:
 
 ```bash
 node --test tests/sudoku.test.mjs
@@ -129,16 +146,20 @@ The tests cover:
 - Complete-grid generation
 - Easy puzzle generation
 - Unique-solution validation
-- Gold price display and caching
+- Gold price display and 30-minute caching
+- Placeholder and JavaScript syntax guards
 
 ## CI
 
-GitHub Actions runs the test suite on every push and pull request targeting `main`.
+GitHub Actions runs the unit-test suite on every push and pull request targeting `main`.
 
-The workflow tests the project on:
+The workflow uses:
 
 - Node.js 20
-- Node.js 22
+- `npm ci`
+- `npm run test:unit`
+
+This prevents a placeholder or syntactically invalid `sudoku-game-main.js` from being merged unnoticed.
 
 ## Run locally
 
