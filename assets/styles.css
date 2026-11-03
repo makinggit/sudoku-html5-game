@@ -34,29 +34,20 @@ body.light-mode {
 	--selected: #7dd3fc80;
 	--box-alt: #64748b1f;
 }
-body.light-mode #new {
-	background: #16a34a;
-	border-color: #15803d;
-	color: #fff;
-}
-body.light-mode #check {
+#new,
+#check,
+#stats,
+#color-mode {
 	background: #2563eb;
 	border-color: #1d4ed8;
 	color: #fff;
 }
-body.light-mode #hint {
-	background: #d97706;
-	border-color: #b45309;
-	color: #fff;
-}
-body.light-mode #stats {
-	background: #7c3aed;
-	border-color: #6d28d9;
-	color: #fff;
-}
+body.light-mode #new,
+body.light-mode #check,
+body.light-mode #stats,
 body.light-mode #color-mode {
-	background: #db2777;
-	border-color: #be185d;
+	background: #2563eb;
+	border-color: #1d4ed8;
 	color: #fff;
 }
 body.light-mode .pad button {
@@ -183,7 +174,7 @@ button:active {
 }
 .quote {
 	margin-top: 12px;
-	padding: 12px;
+	padding: 4px;
 	border: 1px solid var(--control-border);
 	border-radius: 12px;
 	background: var(--control);
@@ -194,20 +185,22 @@ button:active {
 }
 .gold-bar {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(4, 1fr);
 	gap: 8px;
+	row-gap: 0px;
 	margin-top: 12px;
 }
 .gold-metal {
 	display: flex;
-	justify-content: space-between;
+	flex-direction: column;
+	justify-content: center;
 	align-items: center;
-	gap: 8px;
-	padding: 8px 12px;
+	gap: 2px;
+	padding: 2px;
 	background: var(--control);
 	border: 1px solid var(--control-border);
 	border-radius: 12px;
-	font-size: 17px;
+	font-size: 15px;
 	color: var(--muted);
 	cursor: pointer;
 }
@@ -215,7 +208,7 @@ button:active {
 	color: var(--text);
 }
 .gold-price {
-	font-size: 15px;
+	font-size: 14px;
 }
 .bottom-stack {
 	position: fixed;
