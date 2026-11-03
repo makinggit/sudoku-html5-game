@@ -193,11 +193,16 @@ button:active {
 	cursor: pointer;
 }
 .gold-bar {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
 	gap: 8px;
 	margin-top: 12px;
+}
+.gold-metal {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
 	padding: 8px 12px;
 	background: var(--control);
 	border: 1px solid var(--control-border);
@@ -206,8 +211,11 @@ button:active {
 	color: var(--muted);
 	cursor: pointer;
 }
-.gold-bar strong {
+.gold-name {
 	color: var(--text);
+}
+.gold-price {
+	font-size: 15px;
 }
 .bottom-stack {
 	position: fixed;
@@ -274,12 +282,6 @@ button:active {
 .modal-card h2 {
 	margin: 0 0 12px;
 	font-size: 22px;
-}
-.gold-section {
-	margin: 14px 0 8px;
-	font-size: 15px;
-	font-weight: 700;
-	color: var(--muted);
 }
 .stats-grid {
 	display: grid;
