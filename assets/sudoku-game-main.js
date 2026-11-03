@@ -354,6 +354,7 @@ function newGame(countStart = true) {
 	solved = false;
 	checked = false;
 	$("timer").style.visibility = "visible";
+	$("timer").textContent = "00:00";
 	$("hint").textContent = "提示：0";
 	setMessage("", "");
 	startTimer();
@@ -456,12 +457,14 @@ function closeStats() {
 function init() {
 	cells.forEach((cell, position) => {
 		cell.addEventListener("click", () => {
+			if (puzzle[position]) return;
 			selected = position;
 			render();
 		});
 		cell.addEventListener("keydown", (event) => {
 			if (event.key === "Enter" || event.key === " ") {
 				event.preventDefault();
+				if (puzzle[position]) return;
 				selected = position;
 				render();
 			}
