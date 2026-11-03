@@ -120,8 +120,9 @@ test('gold bar appears after the quote card', () => {
 	assert.ok(goldIndex > quoteIndex, 'gold bar should appear after the quote card');
 });
 
-test('gold price is formatted to 2 decimal places', () => {
-	assert.ok(gameScript.includes('data.price.toFixed(2)'));
+test('gold price uses 2 decimals and silver uses 4 decimals', () => {
+	assert.ok(gameScript.includes('data.price.toFixed(decimals)'));
+	assert.ok(/metal\.key\s*===\s*['"]XAG['"]\s*\?\s*4\s*:\s*2/.test(gameScript));
 });
 
 test('mistake counter is removed and hint counter is present', () => {
@@ -150,6 +151,11 @@ test('gold price cache refreshes every 30 minutes', () => {
 	assert.ok(/GOLD_REFRESH_MS\s*=\s*1800000/.test(gameScript));
 	assert.ok(!gameScript.includes('GOLD_DAILY_HOUR'));
 	assert.ok(!gameScript.includes('shouldRefreshDaily'));
+});
+
+test('updating state keeps the previous price text', () => {
+	assert.ok(!gameScript.includes('renderUpdating'));
+	assert.ok(!gameScript.includes('priceEl.textContent = "..."'));
 });
 
 test('game script is complete, executable, and not a placeholder', () => {

@@ -34,15 +34,6 @@ body.light-mode {
 	--selected: #7dd3fc80;
 	--box-alt: #64748b1f;
 }
-#new,
-#check,
-#stats,
-#hint,
-#color-mode {
-	background: #2563eb;
-	border-color: #1d4ed8;
-	color: #fff;
-}
 body.light-mode #new,
 body.light-mode #check,
 body.light-mode #stats,
